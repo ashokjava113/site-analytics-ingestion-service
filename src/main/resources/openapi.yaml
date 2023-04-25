@@ -1,0 +1,198 @@
+openapi: 3.0.1
+
+info:
+  title: Site Analytics Ingestion Service
+  version: 1.0.0
+
+tags:
+  - name: Ingestion
+    description: Site Analytics Ingestion Service Rest API
+
+paths:
+  /store-contents:
+    post:
+      tags:
+        - Ingestion
+      summary: Get the files from aws s3 bucket and store into monogodb
+      description: Get the files from aws s3 bucket and store into monogodb
+      operationId: storedContents
+      security:
+        - oAuth2Password: []
+        - oAuth2Client: []
+      requestBody:
+        description: The Ingestion request body.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcmRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/AcmResponse'
+        400:
+          $ref: '#/components/responses/BadRequest400'
+        401:
+          $ref: '#/components/responses/Unauthorized401'
+        403:
+          $ref: '#/components/responses/AccessDenied403'
+        500:
+          $ref: '#/components/responses/InternalError500'
+
+components:
+  schemas:
+    AcmResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 200
+        statusMessage:
+          type: string
+          format: nullable
+        errorMessages:
+          type: array
+          items:
+            type: string
+        messages:
+          type: array
+          items:
+            type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AcmResponseBody'
+
+    AcmRequest:
+      type: object
+      properties:
+        applicationCode:
+          type: string
+          example: "arinc"
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/files'
+    files:
+      type: object
+      properties:
+        accountFile:
+          type: string
+          example: "GainsightPX_Accounts.json"
+        accountCustomEventFile:
+          type: string
+          example: "GainsightPX_Account_Custom_Event.json"
+
+    AcmResponseBody:
+      type: object
+      properties:
+        accessGranted:
+          type: boolean
+          default: false
+          example: true
+        message:
+          type: string
+          example: "Document Approved"
+  securitySchemes:
+    oAuth2Password:
+      type: oauth2
+      description: OAuth2 Resource Owner Password Credentials
+      flows:
+        password:
+          tokenUrl: /v1/authentication/SAE/oauth/token
+          refreshUrl: /v1/authentication/SAE/oauth/token
+          scopes: {}
+    oAuth2Client:
+      type: oauth2
+      description:  OAuth2 Client Credentials
+      flows:
+        clientCredentials:
+          tokenUrl: /v1/authentication/SAE/oauth/token
+          scopes: {}
+  examples:
+    badRequest:
+      value:
+        statusCode: 400
+        statusMessage: "Bad Request"
+        errorMessages:
+          - "String"
+        messages:
+          - "String"
+        results: [{}]
+    noAuth:
+      value:
+        statusCode: 401
+        statusMessage: "Unauthorized"
+        errorMessages:
+          - "String"
+        messages:
+          - "String"
+        results: [{}]
+    accessDenied:
+      value:
+        statusCode: 403
+        statusMessage: "Access Denied"
+        errorMessages:
+          - "String"
+        messages:
+          - "String"
+        results: [{}]
+    internalError:
+      value:
+        statusCode: 500
+        statusMessage: 'Internal Server Error'
+        errorMessages:
+          - "String"
+        messages:
+          - "String"
+        results: [{}]
+    notFound:
+      value:
+        statusCode: 404
+        statusMessage: "Content not found"
+        errorMessages:
+          - "Not found"
+        messages: []
+        results: []
+  responses:
+    AcmResponse:
+      description: Operation completed successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AcmResponse'
+    BadRequest400:
+      description: Bad Request
+      content:
+        application/json:
+          examples:
+            badRequest:
+              $ref: '#/components/examples/badRequest'
+    NotFound404:
+      description: Not Found
+      content:
+        application/json:
+          examples:
+            badRequest:
+              $ref: '#/components/examples/notFound'
+    Unauthorized401:
+      description: Unauthorized
+      content:
+        application/json:
+          examples:
+            badRequest:
+              $ref: '#/components/examples/noAuth'
+    AccessDenied403:
+      description: Access Denied
+      content:
+        application/json:
+          examples:
+            badRequest:
+              $ref: '#/components/examples/accessDenied'
+    InternalError500:
+      description: Internal Server Error
+      content:
+        application/json:
+          examples:
+            internalError:
+              $ref: '#/components/examples/internalError'

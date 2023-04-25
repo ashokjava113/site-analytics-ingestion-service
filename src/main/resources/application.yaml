@@ -1,0 +1,29 @@
+server:
+  port: 9999
+
+
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+  rabbitmq:
+    addresses: ${RABBITMQ_ADDRESS}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${ACCESS-KEY}
+      secret-key: ${SECRET-KEY}
+    region:
+      static: ${REGION}
+    stack:
+      auto: false
+
+aws:
+  s3:
+    bucket: ${BUCKET}
+
+  file:
+    account: ${GAINSIGHTPX_ACCOUNTS}
+    account_custom_event: ${GAINSIGHTPX_ACCOUNT_CUSTOM_EVENT}
